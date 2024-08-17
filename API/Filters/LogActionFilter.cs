@@ -25,25 +25,26 @@ public class LogActionFilter : IAsyncActionFilter
     public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
     {
         var httpContext = context.HttpContext;
-
         var traceIdentifier = httpContext.TraceIdentifier;
+        var request = httpContext.Request;
+
         var clientIp = httpContext.Features.Get<IHttpConnectionFeature>()?.RemoteIpAddress?.ToString();
-        var uri = httpContext.Request.Host + httpContext.Request.Path;
+        var uri = request.Host + request.Path + request.QueryString;
 
         var token = string.Empty;
         Guid? userId = null;
         var authHeaderName = _configSettings.AuthSettings.HeaderName;
 
-        if (!string.IsNullOrEmpty(httpContext.Request.Headers[authHeaderName]) && httpContext.Request.Headers[authHeaderName].ToString().Length > 7)
+        if (!string.IsNullOrEmpty(request.Headers[authHeaderName]) && request.Headers[authHeaderName].ToString().Length > 7)
         {
-            token = httpContext.Request.Headers[authHeaderName].ToString();
+            token = request.Headers[authHeaderName].ToString();
             userId = !string.IsNullOrEmpty(token) ? _tokenResolverService.GetUserIdFromToken() : null;
         }
 
-        context.HttpContext.Request.Body.Position = 0;
-        using var streamReader = new StreamReader(context.HttpContext.Request.Body);
+        request.Body.Position = 0;
+        using var streamReader = new StreamReader(request.Body);
         var bodyContent = await streamReader.ReadToEndAsync();
-        context.HttpContext.Request.Body.Position = 0;
+        request.Body.Position = 0;
 
         await next();
 
