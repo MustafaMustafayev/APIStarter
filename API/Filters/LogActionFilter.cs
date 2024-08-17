@@ -55,7 +55,7 @@ public class LogActionFilter : IAsyncActionFilter
             Uri = uri,
             RequestDate = DateTime.Now,
             Payload = bodyContent,
-            Method = httpContext.Request.Method,
+            Method = request.Method,
             Token = token,
             UserId = userId,
             ResponseLog = new ResponseLogDto()
