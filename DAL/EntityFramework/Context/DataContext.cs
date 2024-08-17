@@ -9,14 +9,11 @@ namespace DAL.EntityFramework.Context;
 
 public class DataContext : DbContext
 {
-    private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly ITokenResolverService _tokenResolverService;
 
     public DataContext(DbContextOptions<DataContext> options,
-                       IHttpContextAccessor httpContextAccessor,
                        ITokenResolverService tokenResolverService) : base(options)
     {
-        _httpContextAccessor = httpContextAccessor;
         _tokenResolverService = tokenResolverService;
     }
 
