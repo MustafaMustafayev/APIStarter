@@ -11,13 +11,13 @@ public class LogActionFilter : IAsyncActionFilter
 {
     private readonly ConfigSettings _configSettings;
     private readonly ILoggingService _loggingService;
-    private readonly IUtilService _utilService;
+    private readonly ITokenResolverService _tokenResolverService;
 
-    public LogActionFilter(IUtilService utilService,
+    public LogActionFilter(ITokenResolverService tokenResolverService,
                            ILoggingService loggingService,
                            ConfigSettings configSettings)
     {
-        _utilService = utilService;
+        _tokenResolverService = tokenResolverService;
         _loggingService = loggingService;
         _configSettings = configSettings;
     }
@@ -37,7 +37,7 @@ public class LogActionFilter : IAsyncActionFilter
         if (!string.IsNullOrEmpty(httpContext.Request.Headers[authHeaderName]) && httpContext.Request.Headers[authHeaderName].ToString().Length > 7)
         {
             token = httpContext.Request.Headers[authHeaderName].ToString();
-            userId = !string.IsNullOrEmpty(token) ? _utilService.GetUserIdFromToken() : null;
+            userId = !string.IsNullOrEmpty(token) ? _tokenResolverService.GetUserIdFromToken() : null;
         }
 
         context.HttpContext.Request.Body.Position = 0;

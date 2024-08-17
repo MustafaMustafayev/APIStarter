@@ -4,8 +4,11 @@ namespace DTO.User;
 
 public record UserCreateRequestDto()
 {
+    [Required]
     public required string Username { get; set; }
+    [EmailAddress]
     public required string Email { get; set; }
+    [Phone]
     public required string ContactNumber { get; set; }
     [property: RegularExpression("^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$",
         ErrorMessage = "Şifrə formatı düzgün deyil")]

@@ -74,10 +74,6 @@ var app = builder.Build();
 if (config.SwaggerSettings.IsEnabled)
 {
     app.UseSwagger();
-}
-
-if (config.SwaggerSettings.IsEnabled)
-{
     app.UseSwaggerUI(c =>
     {
         c.EnablePersistAuthorization();
@@ -86,6 +82,8 @@ if (config.SwaggerSettings.IsEnabled)
 }
 
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
+app.UseCors(Constants.CORS_POLICY_NAME);
 
 app.UseMiddleware<LocalizationMiddleware>();
 app.UseMiddleware<ExceptionMiddleware>();
@@ -110,8 +108,6 @@ app.Use(async (context, next) =>
 });*/
 
 app.UseStaticFiles();
-
-app.UseCors(Constants.CORS_POLICY_NAME);
 
 app.UseAuthorization();
 

@@ -20,6 +20,6 @@ public class ModelValidatorActionFilter : IActionFilter
         }
 
         var result = new ErrorDataResult<ModelStateDictionary>(context.ModelState, EMessages.InvalidModel.Translate());
-        context.Result = new BadRequestObjectResult(result);
+        context.Result = new UnprocessableEntityObjectResult(result);
     }
 }

@@ -10,14 +10,14 @@ namespace DAL.EntityFramework.Context;
 public class DataContext : DbContext
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly IUtilService _utilService;
+    private readonly ITokenResolverService _tokenResolverService;
 
     public DataContext(DbContextOptions<DataContext> options,
                        IHttpContextAccessor httpContextAccessor,
-                       IUtilService utilService) : base(options)
+                       ITokenResolverService tokenResolverService) : base(options)
     {
         _httpContextAccessor = httpContextAccessor;
-        _utilService = utilService;
+        _tokenResolverService = tokenResolverService;
     }
 
     public required DbSet<User> Users { get; set; }
@@ -67,7 +67,7 @@ public class DataContext : DbContext
                 case EntityState.Added:
                     ((Auditable)entityEntry.Entity).CreatedAt = DateTime.Now;
                     ((Auditable)entityEntry.Entity).CreatedById =
-                        _utilService.GetUserIdFromToken();
+                        _tokenResolverService.GetUserIdFromToken();
                     break;
                 case EntityState.Modified:
                     {
@@ -85,13 +85,13 @@ public class DataContext : DbContext
 
                             ((Auditable)entityEntry.Entity).DeletedAt = DateTime.Now;
                             ((Auditable)entityEntry.Entity).DeletedBy =
-                                _utilService.GetUserIdFromToken();
+                                _tokenResolverService.GetUserIdFromToken();
                         }
                         else
                         {
                             ((Auditable)entityEntry.Entity).ModifiedAt = DateTime.Now;
                             ((Auditable)entityEntry.Entity).ModifiedBy =
-                                _utilService.GetUserIdFromToken();
+                                _tokenResolverService.GetUserIdFromToken();
                         }
 
                         break;

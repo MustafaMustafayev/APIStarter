@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using BLL.Abstract;
-using BLL.Helpers;
 using CORE.Abstract;
 using CORE.Localization;
 using DAL.EntityFramework.Abstract;
@@ -13,12 +12,12 @@ namespace BLL.Concrete;
 public class AuthService(IMapper mapper,
                          IUserRepository userRepository,
                          ITokenRepository tokenRepository,
-                         IUtilService utilService) : IAuthService
+                         ITokenResolverService tokenResolverService) : IAuthService
 {
     private readonly IMapper _mapper = mapper;
     private readonly IUserRepository _userRepository = userRepository;
     private readonly ITokenRepository _tokenRepository = tokenRepository;
-    private readonly IUtilService _utilService = utilService;
+    private readonly ITokenResolverService _tokenResolverService = tokenResolverService;
 
     public async Task<string?> GetUserSaltAsync(string email)
     {
@@ -40,7 +39,7 @@ public class AuthService(IMapper mapper,
 
     public async Task<IDataResult<UserResponseDto>> LoginByTokenAsync()
     {
-        var userId = _utilService.GetUserIdFromToken();
+        var userId = _tokenResolverService.GetUserIdFromToken();
 
         var data = await _userRepository.GetAsync(m => m.Id == userId);
         if (data == null)
@@ -53,9 +52,8 @@ public class AuthService(IMapper mapper,
 
     public async Task<IResult> LogoutAsync(string accessToken)
     {
-        var tokens = await _tokenRepository.GetActiveTokensAsync(accessToken);
-        tokens.ForEach(m => m.IsDeleted = true);
-        await _tokenRepository.UpdateRangeAsync(tokens);
+        var token = await _tokenRepository.GetActiveTokenAsync(accessToken);
+        await _tokenRepository.SoftDeleteAsync(token);
 
         return new SuccessResult(EMessages.Success.Translate());
     }

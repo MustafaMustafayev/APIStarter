@@ -22,9 +22,9 @@ public class TokenRepository : GenericRepository<Token>, ITokenRepository
         return await _dataContext.Tokens.AnyAsync(m => m.AccessToken == accessToken);
     }
 
-    public async Task<List<Token>> GetActiveTokensAsync(string accessToken)
+    public async Task<Token> GetActiveTokenAsync(string accessToken)
     {
-        return await _dataContext.Tokens.Where(m => m.AccessToken == accessToken).ToListAsync();
+        return (await _dataContext.Tokens.FirstOrDefaultAsync(m => m.AccessToken == accessToken && !m.IsDeleted))!;
     }
 
     public async Task<Token> GetAsync(Expression<Func<Token, bool>> filter)

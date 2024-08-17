@@ -1,16 +1,13 @@
 ﻿using BLL;
-using CORE.Abstract;
-using CORE.Concrete;
+using CORE;
 using CORE.Config;
 using DAL.EntityFramework;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Versioning;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using Refit;
 using StackExchange.Profiling;
 using StackExchange.Profiling.SqlFormatters;
 using System.Text;
@@ -128,7 +125,11 @@ public static class DependencyContainer
 
     public static void RegisterRepositories(this IServiceCollection services)
     {
-        services.TryAddScoped<IUtilService, UtilService>();
+        services.Scan(scan => scan
+            .FromAssemblies(typeof(CoreService).Assembly)
+            .AddClasses(classes => classes.AssignableTo(typeof(object)))
+            .AsImplementedInterfaces()
+            .WithScopedLifetime());
 
         services.Scan(scan => scan
             .FromAssemblies(typeof(Service).Assembly)

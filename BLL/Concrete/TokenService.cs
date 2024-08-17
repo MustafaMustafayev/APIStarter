@@ -16,12 +16,16 @@ namespace BLL.Concrete;
 public class TokenService(ConfigSettings configSettings,
                          IMapper mapper,
                          ITokenRepository tokenRepository,
-                         IUtilService utilService) : ITokenService
+                         ITokenResolverService tokenResolverService,
+                         IUtilService utilService,
+                         IEncryptionService encryptionService) : ITokenService
 {
     private readonly ConfigSettings _configSettings = configSettings;
     private readonly IMapper _mapper = mapper;
     private readonly ITokenRepository _tokenRepository = tokenRepository;
+    private readonly ITokenResolverService _tokenResolverService = tokenResolverService;
     private readonly IUtilService _utilService = utilService;
+    private readonly IEncryptionService _encryptionService = encryptionService;
 
     public async Task<IResult> AddAsync(LoginResponseDto dto)
     {
@@ -56,7 +60,7 @@ public class TokenService(ConfigSettings configSettings,
 
     public async Task<IDataResult<LoginResponseDto>> CreateTokenAsync(UserResponseDto dto)
     {
-        var securityHelper = new SecurityHelper(_configSettings, _utilService);
+        var securityHelper = new SecurityHelper(_configSettings, _utilService, _encryptionService);
         var accessTokenExpireDate = DateTime.UtcNow.AddHours(_configSettings.AuthSettings.TokenExpirationTimeInHours);
 
         var loginResponseDto = new LoginResponseDto()
@@ -64,7 +68,7 @@ public class TokenService(ConfigSettings configSettings,
             User = dto,
             AccessToken = securityHelper.CreateTokenForUser(dto, accessTokenExpireDate),
             AccessTokenExpireDate = accessTokenExpireDate,
-            RefreshToken = _utilService.GenerateRefreshToken(),
+            RefreshToken = _tokenResolverService.GenerateRefreshToken(),
             RefreshTokenExpireDate = accessTokenExpireDate.AddMinutes(_configSettings.AuthSettings.RefreshTokenAdditionalMinutes)
         };
 

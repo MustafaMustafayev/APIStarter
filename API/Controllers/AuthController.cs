@@ -24,15 +24,15 @@ public class AuthController : Controller
     private readonly IAuthService _authService;
     private readonly ConfigSettings _configSettings;
     private readonly ITokenService _tokenService;
-    private readonly IUtilService _utilService;
+    private readonly ITokenResolverService _tokenResolverService;
 
     public AuthController(IAuthService authService, ConfigSettings configSettings,
-                          IUtilService utilService, ITokenService tokenService)
+                          ITokenResolverService tokenResolverService, ITokenService tokenService)
     {
         _authService = authService;
         _configSettings = configSettings;
         _tokenService = tokenService;
-        _utilService = utilService;
+        _tokenResolverService = tokenResolverService;
     }
 
     [SwaggerOperation(Summary = "login")]
@@ -67,7 +67,7 @@ public class AuthController : Controller
     [HttpGet("refresh/token")]
     public async Task<IActionResult> RefreshToken()
     {
-        var jwtToken = _utilService.TrimToken(HttpContext.Request.Headers[_configSettings.AuthSettings.HeaderName]!);
+        var jwtToken = _tokenResolverService.TrimToken(HttpContext.Request.Headers[_configSettings.AuthSettings.HeaderName]!);
 
         string refreshToken = HttpContext.Request.Headers[_configSettings.AuthSettings.RefreshTokenHeaderName]!;
 
@@ -102,7 +102,7 @@ public class AuthController : Controller
         LoginInfoByTokenResponseDto loginInfoByTokenResponseDto = new()
         {
             User = loginByTokenResponse.Data!,
-            AccessToken = _utilService.TrimToken(_utilService.GetTokenString())!
+            AccessToken = _tokenResolverService.TrimToken(_tokenResolverService.GetTokenString())!
         };
 
         return Ok(new SuccessDataResult<LoginInfoByTokenResponseDto>(loginInfoByTokenResponseDto, EMessages.Success.Translate()));
@@ -114,7 +114,7 @@ public class AuthController : Controller
     [HttpPost("logout")]
     public async Task<IActionResult> Logout()
     {
-        var accessToken = _utilService.TrimToken(_utilService.GetTokenString()!);
+        var accessToken = _tokenResolverService.TrimToken(_tokenResolverService.GetTokenString()!);
         var response = await _authService.LogoutAsync(accessToken);
 
         return Ok(response);

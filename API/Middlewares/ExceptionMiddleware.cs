@@ -39,7 +39,7 @@ public class ExceptionMiddleware(RequestDelegate next,
     private async Task LogErrorAsync(HttpContext httpContext, Exception ex)
     {
         using IServiceScope scope = _serviceScopeFactory.CreateScope();
-        IUtilService utilService = scope.ServiceProvider.GetRequiredService<IUtilService>();
+        ITokenResolverService tokenResolverService = scope.ServiceProvider.GetRequiredService<ITokenResolverService>();
         IErrorLogService errorLogService = scope.ServiceProvider.GetRequiredService<IErrorLogService>();
 
         var traceIdentifier = httpContext.TraceIdentifier;
@@ -54,8 +54,7 @@ public class ExceptionMiddleware(RequestDelegate next,
             httpContext.Request.Headers[authHeaderName].ToString().Length > 7)
         {
             token = httpContext.Request.Headers[authHeaderName].ToString();
-            userId = !string.IsNullOrEmpty(token)
-                ? utilService.GetUserIdFromToken() : null;
+            userId = !string.IsNullOrEmpty(token) ? tokenResolverService.GetUserIdFromToken() : null;
         }
 
         ErrorLogCreateDto errorLogToAddDto = new()

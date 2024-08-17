@@ -15,11 +15,15 @@ public class SecurityHelper
 {
     private readonly ConfigSettings _configSettings;
     private readonly IUtilService _utilService;
+    private readonly IEncryptionService _encryptionService;
 
-    public SecurityHelper(ConfigSettings configSettings, IUtilService utilService)
+    public SecurityHelper(ConfigSettings configSettings,
+                          IUtilService utilService,
+                          IEncryptionService encryptionService)
     {
         _configSettings = configSettings;
         _utilService = utilService;
+        _encryptionService = encryptionService;
     }
 
     public static string GenerateSalt()
@@ -52,7 +56,7 @@ public class SecurityHelper
     {
         var claims = new List<Claim>
     {
-        new(_configSettings.AuthSettings.TokenUserIdKey, _utilService.Encrypt(userDto.Id.ToString())),
+        new(_configSettings.AuthSettings.TokenUserIdKey, _encryptionService.Encrypt(userDto.Id.ToString())),
         new(ClaimTypes.Name, userDto.Username),
         new(_configSettings.AuthSettings.Role, userDto.Role == null ? string.Empty : userDto.Role!.Name),
         new(ClaimTypes.Expiration, expirationDate.ToString(CultureInfo.InvariantCulture))

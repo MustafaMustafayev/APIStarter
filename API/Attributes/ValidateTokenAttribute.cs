@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace API.Attributes;
 
-// [AttributeUsage(AttributeTargets.Method)]
 public class ValidateTokenAttribute : Attribute, IAuthorizationFilter
 {
     public void OnAuthorization(AuthorizationFilterContext context)
@@ -20,12 +19,12 @@ public class ValidateTokenAttribute : Attribute, IAuthorizationFilter
 
         var configSettings = (context.HttpContext.RequestServices.GetService(typeof(ConfigSettings)) as ConfigSettings)!;
         var tokenService = (context.HttpContext.RequestServices.GetService(typeof(ITokenService)) as ITokenService)!;
-        var utilService = (context.HttpContext.RequestServices.GetService(typeof(IUtilService)) as IUtilService)!;
+        var tokenResolverService = (context.HttpContext.RequestServices.GetService(typeof(ITokenResolverService)) as ITokenResolverService)!;
 
         string? jwtToken = context.HttpContext.Request.Headers[configSettings.AuthSettings.HeaderName];
         string? refreshToken = context.HttpContext.Request.Headers[configSettings.AuthSettings.RefreshTokenHeaderName];
 
-        jwtToken = utilService.TrimToken(jwtToken);
+        jwtToken = tokenResolverService.TrimToken(jwtToken);
 
         var validationResult = tokenService.CheckValidationAsync(jwtToken, refreshToken!).Result;
 

@@ -24,13 +24,16 @@ namespace API.Controllers;
 public class UsersController : Controller
 {
     private readonly IUserService _userService;
+    private readonly ITokenResolverService _tokenResolverService;
     private readonly IUtilService _utilService;
     private readonly IAuthService _authService;
     public UsersController(IUserService userService,
+                           ITokenResolverService tokenResolverService,
                            IUtilService utilService,
                            IAuthService authService)
     {
         _userService = userService;
+        _tokenResolverService = tokenResolverService;
         _utilService = utilService;
         _authService = authService;
     }
@@ -61,7 +64,7 @@ public class UsersController : Controller
     [HttpGet("profile")]
     public async Task<IActionResult> GetProfileInfo()
     {
-        var userId = _utilService.GetUserIdFromToken();
+        var userId = _tokenResolverService.GetUserIdFromToken();
         var response = await _userService.GetAsync(userId);
         return Ok(response);
     }
@@ -112,7 +115,7 @@ public class UsersController : Controller
     [HttpPost("upload/image")]
     public async Task<IActionResult> UploadImage(IFormFile file)
     {
-        Guid userId = _utilService.GetUserIdFromToken();
+        Guid userId = _tokenResolverService.GetUserIdFromToken();
         return await UploadImage(userId, file);
     }
 
@@ -121,7 +124,7 @@ public class UsersController : Controller
     [HttpPost("{id}/upload/image")]
     public async Task<IActionResult> UploadImage([FromRoute] Guid id, IFormFile file)
     {
-        string fileExtension = System.IO.Path.GetExtension(file.FileName);
+        string fileExtension = Path.GetExtension(file.FileName);
         Guid fileNewName = Guid.NewGuid();
 
         if (!Constants.AllowedImageExtensions.Contains(fileExtension))
@@ -143,7 +146,7 @@ public class UsersController : Controller
     [HttpDelete("image")]
     public async Task<IActionResult> DeleteImage()
     {
-        Guid userId = _utilService.GetUserIdFromToken();
+        Guid userId = _tokenResolverService.GetUserIdFromToken();
         var response = await DeleteImage(userId);
         return response;
     }
@@ -167,7 +170,7 @@ public class UsersController : Controller
         }
 
         var path = _utilService.GetEnvFolderPath(_utilService.GetFolderName(EFileType.UserImages));
-        var fullPath = System.IO.Path.Combine(path, existFile!.Data);
+        var fullPath = Path.Combine(path, existFile!.Data);
 
         if (System.IO.File.Exists(fullPath))
         {
@@ -185,7 +188,7 @@ public class UsersController : Controller
     [AllowAnonymous]
     public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequestDto request)
     {
-        var userId = _utilService.GetUserIdFromToken();
+        var userId = _tokenResolverService.GetUserIdFromToken();
         var response = await _userService.ResetPasswordAsync(userId, request);
         await _authService.LogoutRemovedUserAsync(userId);
 
