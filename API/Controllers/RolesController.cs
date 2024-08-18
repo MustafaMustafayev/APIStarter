@@ -16,7 +16,7 @@ namespace API.Controllers;
 [ServiceFilter(typeof(LogActionFilter))]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [ValidateToken]
-public class RolesController : Controller
+public class RolesController : ControllerBase
 {
     private readonly IRoleService _roleService;
 

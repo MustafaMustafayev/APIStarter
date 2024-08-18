@@ -19,7 +19,7 @@ namespace API.Controllers;
 [Route("api/[controller]")]
 [ServiceFilter(typeof(LogActionFilter))]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-public class AuthController : Controller
+public class AuthController : ControllerBase
 {
     private readonly IAuthService _authService;
     private readonly ConfigSettings _configSettings;

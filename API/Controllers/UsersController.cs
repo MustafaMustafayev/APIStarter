@@ -21,7 +21,7 @@ namespace API.Controllers;
 [Route("api/[controller]")]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [ValidateToken]
-public class UsersController : Controller
+public class UsersController : ControllerBase
 {
     private readonly IUserService _userService;
     private readonly ITokenResolverService _tokenResolverService;

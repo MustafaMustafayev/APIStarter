@@ -14,7 +14,7 @@ namespace API.Controllers;
 [ServiceFilter(typeof(LogActionFilter))]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [ValidateToken]
-public class PermissionsController : Controller
+public class PermissionsController : ControllerBase
 {
     private readonly IPermissionService _permissionService;
 

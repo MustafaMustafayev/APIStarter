@@ -14,7 +14,7 @@ namespace API.Controllers;
 [ServiceFilter(typeof(LogActionFilter))]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [ValidateToken]
-public class ErrorLogsController : Controller
+public class ErrorLogsController : ControllerBase
 {
     private readonly IErrorLogService _errorLogService;
     public ErrorLogsController(IErrorLogService errorLogService)
